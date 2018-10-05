@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import * as BooksAPI from './BooksAPI';
 import Shelf from './Shelf';
-
+import { Route } from 'react-router-dom';
 class BooksApp extends React.Component {
   constructor(props) {
     super(props);
@@ -22,8 +22,12 @@ class BooksApp extends React.Component {
       this.setState({ books });
     });
   }
-  //TODO - add changing shelf
-  changeShelf() {}
+
+  changeShelf = (book, shelf) => {
+    book.shelf = shelf;
+    BooksAPI.update(book, shelf).then(this.setState(cur => ({ cur: cur.books.concat([book]) })));
+  };
+
   render() {
     return (
       <div className="app">
@@ -32,18 +36,29 @@ class BooksApp extends React.Component {
             <h1>MyReads</h1>
           </div>
           <div className="list-books-content">
-            {this.shelfs.map(shelf => (
-              <Shelf
-                key={shelf.id}
-                shelfName={shelf.name}
-                books={this.state.books.filter(book => book.shelf === shelf.id)}
-                changeShelf={this.changeShelf}
-              />
-            ))}
+            <Route
+              exact
+              path="/"
+              render={() =>
+                this.shelfs.map(shelf => (
+                  <Shelf
+                    key={shelf.id}
+                    shelfName={shelf.name}
+                    books={this.state.books.filter(book => book.shelf === shelf.id)}
+                    changeShelf={this.changeShelf}
+                  />
+                ))
+              }
+            />
           </div>
-          <div className="open-search">
-            <a onClick={() => this.setState({ showSearchPage: true })}>Add a book</a>
-          </div>
+          <Route
+            path="/search"
+            render={({ history }) => (
+              <div className="open-search">
+                <a onClick={() => this.setState({ showSearchPage: true })}>Add a book</a>
+              </div>
+            )}
+          />
         </div>
       </div>
     );

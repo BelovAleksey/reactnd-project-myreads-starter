@@ -2,8 +2,11 @@ import React, { Component } from 'react';
 import Changer from './Changer';
 
 class Book extends Component {
+  handleChangeShelf = value => {
+    return this.props.changeShelf(this.props.book, value);
+  };
   render() {
-    const { backgroundImage, shelf, title, authors, changeShelf } = this.props;
+    const { backgroundImage, book, shelf, title, authors } = this.props;
     return (
       <li>
         <div className="book">
@@ -16,7 +19,7 @@ class Book extends Component {
                 backgroundImage: `url(${backgroundImage})`
               }}
             />
-            <Changer shelf={shelf} changeShelf={changeShelf} />
+            <Changer shelf={shelf} book={book} changeShelf={this.handleChangeShelf} />
           </div>
           <div className="book-title">{title}</div>
           <div className="book-authors">{authors}</div>
