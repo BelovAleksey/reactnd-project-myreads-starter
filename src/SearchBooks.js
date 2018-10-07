@@ -1,21 +1,75 @@
-<div className="search-books">
-  <div className="search-books-bar">
-    <a className="close-search" onClick={() => this.setState({ showSearchPage: false })}>
-      Close
-    </a>
-    <div className="search-books-input-wrapper">
-      {/*
-            NOTES: The search from BooksAPI is limited to a particular set of search terms.
-            You can find these search terms here:
-            https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import Book from './Book';
+import * as BooksAPI from './BooksAPI';
 
-            However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-            you don't find a specific author or title. Every search is limited by search terms.
-          */}
-      <input type="text" placeholder="Search by title or author" />
-    </div>
-  </div>
-  <div className="search-books-results">
-    <ol className="books-grid" />
-  </div>
-</div>;
+class SearchBooks extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { books: [] };
+  }
+  updateShelf(allBooks, booksInShelf) {
+    allBooks.forEach(book => {
+      booksInShelf.forEach(bookInShelf => {
+        if (book.id === bookInShelf.id) {
+          book.shelf = bookInShelf.shelf;
+        }
+      });
+    });
+    return allBooks;
+  }
+
+  searchBooks(event) {
+    event.preventDefault();
+    const trimmedInput = event.target.value.trim();
+    if (trimmedInput) {
+      BooksAPI.search(trimmedInput).then(books => {
+        if (books.error) {
+          this.setState({ books: [] });
+        } else {
+          books = this.updateShelf(books, this.props.books);
+          this.setState({ books });
+        }
+      });
+    } else this.setState({ books: [] });
+  }
+  changeShelf = (updatedBook, shelf) => {
+    this.setState(cur => {
+      cur.books.map(book => (book.id === updatedBook.id ? (book.shelf = shelf) : ''));
+      return { cur };
+    });
+    this.props.onChange(updatedBook, shelf);
+  };
+  render() {
+    const books = this.state.books;
+    return (
+      <div className="search-books">
+        <div className="search-books-bar">
+          <Link className="close-search" to="/">
+            Close
+          </Link>
+          <div className="search-books-input-wrapper">
+            <input type="text" placeholder="Search by title or author" onChange={event => this.searchBooks(event)} />
+          </div>
+        </div>
+        <div className="search-books-results">
+          <ol className="books-grid">
+            {books &&
+              books.map(book => (
+                <Book
+                  key={book.id}
+                  book={book}
+                  shelf={book.shelf}
+                  backgroundImage={book.imageLinks ? book.imageLinks.smallThumbnail : ''}
+                  authors={book.authors}
+                  title={book.title}
+                  changeShelf={this.changeShelf}
+                />
+              ))}
+          </ol>
+        </div>
+      </div>
+    );
+  }
+}
+export default SearchBooks;

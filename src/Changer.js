@@ -7,13 +7,13 @@ class Changer extends Component {
   }
   handeChangeShelf = e => {
     e.preventDefault();
-    console.log(e.target.value);
     this.props.changeShelf(e.target.value);
   };
   render() {
+    const shelf = this.props.shelf ? this.props.shelf : 'none';
     return (
       <div className="book-shelf-changer">
-        <select value={this.state.shelf} onChange={this.handeChangeShelf}>
+        <select value={shelf} onChange={this.handeChangeShelf}>
           <option value="move" disabled>
             Move to...
           </option>

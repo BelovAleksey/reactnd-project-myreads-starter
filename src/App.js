@@ -3,29 +3,38 @@ import './App.css';
 import * as BooksAPI from './BooksAPI';
 import Shelf from './Shelf';
 import { Route } from 'react-router-dom';
+import SearchBooks from './SearchBooks';
+
 class BooksApp extends React.Component {
   constructor(props) {
     super(props);
     this.shelfs = [{ id: 'currentlyReading', name: 'Currently Reading' }, { id: 'wantToRead', name: 'Want to Read' }, { id: 'read', name: 'Read' }];
+    this.state = {
+      books: []
+    };
   }
-  state = {
-    /**
-     * TODO: Instead of using this state variable to keep track of which page
-     * we're on, use the URL in the browser's address bar. This will ensure that
-     * users can use the browser's back and forward buttons to navigate between
-     * pages, as well as provide a good URL they can bookmark and share.
-     */
-    books: []
-  };
+
   componentDidMount() {
     BooksAPI.getAll().then(books => {
       this.setState({ books });
     });
   }
 
-  changeShelf = (book, shelf) => {
-    book.shelf = shelf;
-    BooksAPI.update(book, shelf).then(this.setState(cur => ({ cur: cur.books.concat([book]) })));
+  changeShelf = (updatedBook, shelf) => {
+    this.setState(cur => {
+      let existInShelf = false;
+      cur.books.forEach(book => {
+        if (book.id === updatedBook.id) {
+          book.shelf = shelf;
+          existInShelf = true;
+        }
+      });
+      if (!existInShelf) {
+        return { books: cur.books.concat([updatedBook]) };
+      }
+      return { cur };
+    });
+    BooksAPI.update(updatedBook, shelf).then();
   };
 
   render() {
@@ -51,14 +60,7 @@ class BooksApp extends React.Component {
               }
             />
           </div>
-          <Route
-            path="/search"
-            render={({ history }) => (
-              <div className="open-search">
-                <a onClick={() => this.setState({ showSearchPage: true })}>Add a book</a>
-              </div>
-            )}
-          />
+          <Route path="/search" render={() => <SearchBooks books={this.state.books} onChange={this.changeShelf} />} />
         </div>
       </div>
     );

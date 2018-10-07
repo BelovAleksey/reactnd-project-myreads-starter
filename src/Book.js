@@ -6,25 +6,23 @@ class Book extends Component {
     return this.props.changeShelf(this.props.book, value);
   };
   render() {
-    const { backgroundImage, book, shelf, title, authors } = this.props;
+    const { backgroundImage, shelf, title, authors } = this.props;
     return (
-      <li>
-        <div className="book">
-          <div className="book-top">
-            <div
-              className="book-cover"
-              style={{
-                width: 128,
-                height: 193,
-                backgroundImage: `url(${backgroundImage})`
-              }}
-            />
-            <Changer shelf={shelf} book={book} changeShelf={this.handleChangeShelf} />
-          </div>
-          <div className="book-title">{title}</div>
-          <div className="book-authors">{authors}</div>
+      <div className="book">
+        <div className="book-top">
+          <div
+            className="book-cover"
+            style={{
+              width: 128,
+              height: 193,
+              backgroundImage: `url(${backgroundImage})`
+            }}
+          />
+          <Changer shelf={shelf} changeShelf={this.handleChangeShelf} />
         </div>
-      </li>
+        <div className="book-title">{title}</div>
+        <div className="book-authors">{authors}</div>
+      </div>
     );
   }
 }
