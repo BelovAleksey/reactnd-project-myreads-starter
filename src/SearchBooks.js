@@ -22,17 +22,33 @@ class SearchBooks extends Component {
   searchBooks(event) {
     event.preventDefault();
     const trimmedInput = event.target.value.trim();
-    if (trimmedInput) {
-      BooksAPI.search(trimmedInput).then(books => {
-        if (books.error) {
-          this.setState({ books: [] });
-        } else {
-          books = this.updateShelf(books, this.props.books);
-          this.setState({ books });
-        }
-      });
-    } else this.setState({ books: [] });
+
+    this.setState(
+      state => {
+        return (state.query = trimmedInput);
+      },
+      () => {
+        if (trimmedInput) {
+          BooksAPI.search(trimmedInput).then(books => {
+            if (books.error) {
+              this.setState(state => {
+                return (state.books = []);
+              });
+            } else if (trimmedInput === this.state.query) {
+              books = this.updateShelf(books, this.props.books);
+              this.setState(state => {
+                return (state.books = books);
+              });
+            }
+          });
+        } else
+          this.setState(state => {
+            return (state.books = []);
+          });
+      }
+    );
   }
+
   changeShelf = (updatedBook, shelf) => {
     this.setState(cur => {
       cur.books.map(book => (book.id === updatedBook.id ? (book.shelf = shelf) : ''));
@@ -49,7 +65,7 @@ class SearchBooks extends Component {
             Close
           </Link>
           <div className="search-books-input-wrapper">
-            <input type="text" placeholder="Search by title or author" onChange={event => this.searchBooks(event)} />
+            <input type="text" placeholder="Search by term" onChange={event => this.searchBooks(event)} />
           </div>
         </div>
         <div className="search-books-results">
